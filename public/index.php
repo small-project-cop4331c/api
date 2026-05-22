@@ -6,9 +6,10 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 use Slim\Factory\AppFactory;
-use App\Controllers\AuthController;
 
 $app = AppFactory::create();
+
+require __DIR__ . '/../src/routes/authRoutes.php';
 
 // Endpoint for API health check
 $app->get('/api/health', function ($request, $response) {
@@ -16,11 +17,7 @@ $app->get('/api/health', function ($request, $response) {
 		'status' => 'API is running'
 	]));
 
-	return $response->withHeader('ContentType', 'application/json');
+	return $response->withHeader('Content-Type', 'application/json');
 });
-
-// Endpoints for user login and sign up
-$app->post('/api/login', [AuthController::class, 'login']);
-$app->post('/api/register', [AuthController::class, 'register']);
 
 $app->run();

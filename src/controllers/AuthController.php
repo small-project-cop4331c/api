@@ -58,11 +58,11 @@ class AuthController {
 
                 // If password is correct, returns user data in the response
                 $response->getBody()->write(json_encode([
-                    'message' => 'Login successful',
+                    'message' => 'Login successful.',
                     'user' => [
                         'id' => $user['id'],
-                        'firstname' => $user['first_name'],
-                        'lastname' => $user['last_name'],
+                        'firstName' => $user['first_name'],
+                        'lastName' => $user['last_name'],
                         'email' => $user['email_address']
                     ]
                 ]));
