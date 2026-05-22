@@ -9,6 +9,8 @@ use Slim\Factory\AppFactory;
 
 $app = AppFactory::create();
 
+$app->addBodyParsingMiddleware();
+
 require __DIR__ . '/../src/routes/authRoutes.php';
 
 // Endpoint for API health check
