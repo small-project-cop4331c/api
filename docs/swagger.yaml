@@ -1,0 +1,169 @@
+openapi: 3.0.0
+info:
+  title: Contacts App API
+  description: This is an API for a Contacts App for the Small Project in COP 4331
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/na-6b2/SmallProject_API/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: developers
+  description: Operations available to regular developers
+paths:
+  /api/login:
+    post:
+      tags:
+      - developers
+      summary: User login
+      description: This endpoint signs in a user using email and password.
+      operationId: loginUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          description: User successfully signed in.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          description: Invalid user data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Invalid email or password.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/register:
+    post:
+      tags:
+      - developers
+      summary: User registration
+      description: This endpoint registers a new user.
+      operationId: registerUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+        required: true
+      responses:
+        "201":
+          description: User successfully registered.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+        "400":
+          description: "Missing fields, invalid email, invalid password, or passwords\
+            \ do not match."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email is already in use.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error registering user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    LoginRequest:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          example: password123
+    RegisterRequest:
+      required:
+      - confirmPassword
+      - email
+      - firstName
+      - lastName
+      - password
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Smith
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          minLength: 8
+          type: string
+          example: password123
+        confirmPassword:
+          minLength: 8
+          type: string
+          example: password123
+    LoginResponse:
+      required:
+      - message
+      - user
+      type: object
+      properties:
+        message:
+          type: string
+          example: Login successful.
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            firstName:
+              type: string
+              example: John
+            lastName:
+              type: string
+              example: Smith
+            email:
+              type: string
+              format: email
+              example: john@example.com
+    RegisterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User registered successfully.
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid email or password.
