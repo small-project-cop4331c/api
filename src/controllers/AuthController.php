@@ -117,15 +117,6 @@ class AuthController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        // Checks for minimum password length requirement
-        if(strlen($password) < 8) {
-            $response->getBody()->write(json_encode([
-                'error' => 'Password must be at least 8 characters long.'
-            ]));
-
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-        }
-
         // Check if password and confirmation are equal
         if ($confirmPassword !== $password) {
             $response->getBody()->write(json_encode([
@@ -133,6 +124,15 @@ class AuthController {
             ]));
 
             // Returns a Bad Request Error Code (400)
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        // Checks for minimum password length requirement
+        if(strlen($password) < 8) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Password must be at least 8 characters long.'
+            ]));
+
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
