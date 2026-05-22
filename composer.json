@@ -9,7 +9,8 @@
     },
     "autoload": {
         "psr-4": {
-            "SmallprojectCop4331\\Api\\": "src/"
+            "SmallprojectCop4331\\Api\\": "src/",
+            "App\\": "src/"
         }
     }
 }

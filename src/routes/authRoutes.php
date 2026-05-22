@@ -4,7 +4,9 @@ use App\Controllers\AuthController;
 
 /** @var \Slim\App $app */
 
-// Endpoints for user login and sign up
-$app->post('/api/login', [AuthController::class, 'login']);
+$authController = new AuthController();
 
-$app->post('/api/register', [AuthController::class, 'register']);
+// Endpoints for user login and sign up
+$app->post('/api/login', [$authController, 'login']);
+
+$app->post('/api/register', [$authController, 'register']);
