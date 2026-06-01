@@ -7,6 +7,8 @@ use Firebase\JWT\JWT;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+use App\Models\User;
+
 class AuthController {
     // Login function
     public function login(Request $request, Response $response): Response {
@@ -163,47 +165,25 @@ class AuthController {
         // Hashes the password before storing it in the database
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // Establishes connection with the database
-        $db = Database::getConnection();
-    
-        // Checks if the inserted email is already registered in the database
-        $stmt = $db->prepare("SELECT id FROM Users WHERE email_address = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-    
-        $result = $stmt->get_result();
-
-        // If the email is already registered, returns an error message
-        if ($result->num_rows > 0) {
-            $stmt->close();
-
+        // Uses the User model to verify if the email is already in use and returns
+        // an error if it is
+        if(User::emailExists($email)) {
             $response->getBody()->write(json_encode([
                 'error' => 'Email is already in use.'
             ]));
 
-            // Returns a Conflict Status Code (409)
             return $response->withHeader('Content-Type', 'application/json')->withStatus(409);
         }
 
-        $stmt->close();
-
-        // Insert new user into the database's user table
-        $stmt = $db->prepare("INSERT INTO Users (first_name, last_name, email_address, password) VALUES (?, ?, ?, ?)");
-
-        // Binds parameters to avoid SQL injections and executes the query
-        $stmt->bind_param("ssss", $firstName, $lastName, $email, $hashedPassword);
-
-        if($stmt->execute()){
-            $stmt->close();
-            // If registration is successful, returns 201 status code and success message
+        // Uses the User model to create a new user in the database and checks if the registration was successful
+        if(User::createUser($firstName, $lastName, $email, $hashedPassword)) {
+            // If registration is sucessful, returns 201 status code and success message
             $response->getBody()->write(json_encode([
                 'message' => 'User registered successfully.'
             ]));
 
-            // Returns request with status code 201 (Created)
             return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
         }else{
-            $stmt->close();
             // If user could not be registered, returns status code 500 for internal
             // server error and an error message
             $response->getBody()->write(json_encode([
