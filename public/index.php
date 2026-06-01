@@ -11,6 +11,11 @@ $app = AppFactory::create();
 
 $app->addBodyParsingMiddleware();
 
+// CORS Middleware to allow requests from the frontend
+$app->options('/{routes:.+}', function ($request, $response) {
+	return $response->withStatus(200);
+});
+
 require __DIR__ . '/../src/routes/authRoutes.php';
 
 // Endpoint for API health check

@@ -3,10 +3,13 @@
 namespace App\Controllers;
 
 use App\Config\Database;
+use Firebase\JWT\JWT;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AuthController {
     // Login function
-    public function login($request, $response) {
+    public function login(Request $request, Response $response): Response {
         
         // Parses request body to get variables
         $data = $request->getParsedBody();
@@ -15,7 +18,6 @@ class AuthController {
         $email = trim($data['email'] ?? '');
         $password = $data['password'] ?? '';
 
-        
         // Returns an error if email or password is empty
         if(empty($email) || empty($password)) {
             $response->getBody()->write(json_encode([
@@ -56,6 +58,17 @@ class AuthController {
             // Verifies the password by comparing it with the hashed password
             if(password_verify($password, $user['password'])) {
 
+                // Creates a payload to send with the response
+                $payload = [
+                    'userId' => $user['id'],
+                    'email' => $user['email_address'],
+                    'iat' => time(), // Issued at time
+                    'exp' => time() + (60 * 60) // Token expires in 1 hour
+                ];
+
+                // Encodes the payload into a JWT token using the .env secret key
+                $token = JWT::encode($payload, $_ENV['JWT_SECRET'], 'HS256');
+
                 // If password is correct, returns user data in the response
                 $response->getBody()->write(json_encode([
                     'message' => 'Login successful.',
@@ -64,7 +77,8 @@ class AuthController {
                         'firstName' => $user['first_name'],
                         'lastName' => $user['last_name'],
                         'email' => $user['email_address']
-                    ]
+                    ],
+                    'token' => $token
                 ]));
 
                 // Returns successful login response with 200 status code
@@ -77,6 +91,7 @@ class AuthController {
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
             }
         }else{
+            $stmt->close();
             // If user does not exist, returns an error message with 401 status code
             $response->getBody()->write(json_encode([
                 'error' => 'Invalid email or password.'
@@ -86,7 +101,7 @@ class AuthController {
 
     }
 
-    public function register($request, $response) {
+    public function register(Request $request, Response $response): Response {
         
         // Parses request body to get variables
         $data = $request->getParsedBody();
