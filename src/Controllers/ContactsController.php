@@ -2,9 +2,6 @@
 
 namespace App\Controllers;
 
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-
 use App\Models\Contact;
 
 use Psr\Http\Message\ResponseInterface as Response;
