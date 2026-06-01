@@ -16,7 +16,9 @@ $app->options('/{routes:.+}', function ($request, $response) {
 	return $response->withStatus(200);
 });
 
+// Routes for authentication and contact management
 require __DIR__ . '/../src/routes/authRoutes.php';
+require __DIR__ . '/../src/routes/contactsRoutes.php';
 
 // Endpoint for API health check
 $app->get('/api/health', function ($request, $response) {
