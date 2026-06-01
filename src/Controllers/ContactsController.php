@@ -12,39 +12,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class ContactsController {
     public function getContacts(Request $request, Response $response, array $args): Response {
-        $authHeader = $request->getHeaderLine('Authorization');
-
-        // Checks if the Authorization header is present and contains a Bearer token
-        if(!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-            $response->getBody()->write(json_encode([
-                'error' => 'Missing token'
-            ]));
-
-            // Returns a 401 Unauthorized response if the authorization header is missing
-            // or does not contain a valid Bearer token
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
-        }
-
-        // Extracts the token from the Authorization header
-        $token = $matches[1];
 
         try {
-            // Extracts the user ID from the JWT token
-            $decoded = JWT::decode($token, new Key($_ENV['JWT_SECRET'], 'HS256'));
 
-            $userId = $decoded->userId;
-            
-        } catch(\Exception $e) {
+            $userId = $request->getAttribute("userId");
 
-            // Returns a 401 Unauthorized response if the token is invalid or expired
-            $response->getBody()->write(json_encode([
-                'error' => 'Invalid token.'
-            ]));
-
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
-        }
-
-        try {
             // Gets query parameters from the request
             $queryParams = $request->getQueryParams();
             $search = trim($queryParams['search'] ?? '');
