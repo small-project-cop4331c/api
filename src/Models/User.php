@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Config\Database;
 
 class User {
-
     // Model function to check if an email already exists in the database
     public static function emailExists(string $email): bool {
         $db = Database::getConnection();
