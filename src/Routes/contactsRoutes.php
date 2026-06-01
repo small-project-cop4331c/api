@@ -1,24 +1,28 @@
 <?php
 
 use App\Controllers\ContactsController;
-use App\Models\Contact;
-use App\Models\User;
+use App\Middleware\JwtMiddleware;
 
 /** @var \Slim\App $app */
 
-$contactsController = new ContactsController();
+// Groups all contact-related endpoints and adds the JwtMiddleware to ensure they
+// require authentication.
+$app->group('/api/contacts', function ($group) {
+    $contactsController = new ContactsController();
 
-// Endpoint for viewing contact list
-$app->get("/api/contacts", [$contactsController, 'getContacts']);
+    // Endpoint for viewing contact list based on search query
+    $group->get('', [$contactsController, 'getContacts']);
 
-// Endpoint for viewing a single contact by ID
-$app->get("/api/contact/{id}", [$contactsController, 'getContact']);
+    // Endpoint for viewing a single contact by ID
+    $group->get('/{id}', [$contactsController, 'getContact']);
 
-// Endpoint for creating a new contact
-$app->post("/api/contacts", [$contactsController, 'createContact']);
+    // Endpoint for creating a new contact
+    $group->post('', [$contactsController, 'addContact']);
 
-// Endpoint for updating a contact by ID
-$app->put('/api/contact/{id}', [$contactsController, 'updateContactByID']);
+    // Endpoint for updating a contact by ID
+    $group->put('/{id}', [$contactsController, 'updateContactById']);
 
-// Endpoint for deleting a contact by ID
-$app->delete("/api/contact/{id}", [$contactsController, 'deleteContactByID']);
+    // Endpoint for deleting a contact by ID
+    $group->delete('/{id}', [$contactsController, 'deleteContactById']);
+
+})->add(new JwtMiddleware());
