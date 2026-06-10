@@ -3,7 +3,7 @@ info:
   title: Contacts App API
   description: This is an API for a Contacts App for the Small Project in COP 4331
   contact:
-    email: you@your-company.com
+    email: tiago@ucf.edu
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -11,9 +11,9 @@ info:
 servers:
 - url: https://virtserver.swaggerhub.com/na-6b2/SmallProject_API/1.0.0
   description: SwaggerHub API Auto Mocking
+- url: http://stealingyourinfo.xyz
+  description: DigitalOcean Droplet
 tags:
-- name: admins
-  description: Secured Admin-only calls
 - name: developers
   description: Operations available to regular developers
 paths:
@@ -88,6 +88,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/contacts:
+    get:
+      tags:
+      - developers
+      summary: Get contacts
+      description: Retrieves all contacts belonging to the authenticated user.
+      operationId: getContacts
+      parameters:
+      - name: search
+        in: query
+        description: "Search bar used to filter contacts by first name, last name,\
+          \ email or phone number."
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+        example: joh
+      responses:
+        "200":
+          description: Contacts retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactsResponse"
+        "401":
+          description: Missing or invalid JWT token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactsErrorResponse"
+        "500":
+          description: Failed to retrieve contacts.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactsErrorResponse"
+      security:
+      - bearerAuth: []
 components:
   schemas:
     LoginRequest:
@@ -133,6 +172,7 @@ components:
     LoginResponse:
       required:
       - message
+      - token
       - user
       type: object
       properties:
@@ -155,15 +195,78 @@ components:
               type: string
               format: email
               example: john@example.com
+        token:
+          type: string
+          description: JWT authentication token used for accessing protected endpoints.
+            Include it in future requests using the Authorization header as a bearer
+            token.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
     RegisterResponse:
+      required:
+      - message
       type: object
       properties:
         message:
           type: string
           example: User registered successfully.
     ErrorResponse:
+      required:
+      - error
       type: object
       properties:
         error:
           type: string
           example: Invalid email or password.
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Smith
+        phone_number:
+          type: string
+          example: "4071234567"
+        email_address:
+          type: string
+          format: email
+          example: john@example.com
+    ContactsResponse:
+      required:
+      - contacts
+      - message
+      type: object
+      properties:
+        message:
+          type: string
+          example: The user's contacts were retrieved successfully.
+        contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Contact"
+      example:
+        message: The user's contacts were retrieved successfully.
+        contacts:
+        - id: 1
+          first_name: John
+          last_name: Smith
+          phone_number: 4071234567
+          email_address: john@example.com
+    ContactsErrorResponse:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          example: The user's contacts could not be retrieved.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
