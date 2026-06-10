@@ -34,7 +34,7 @@ class Contact {
         $search = "%$search%";
 
         // Prepares a statement to search for contacts that match the search query
-        $stmt = $db->prepare("SELECT * FROM CONTACTS WHERE user_id = ? AND (first_name LIKE ? OR last_name LIKE ? OR email_address LIKE ? OR phone_number LIKE ?) ORDER BY first_name ASC, last_name ASC");
+        $stmt = $db->prepare("SELECT * FROM Contacts WHERE user_id = ? AND (first_name LIKE ? OR last_name LIKE ? OR email_address LIKE ? OR phone_number LIKE ?) ORDER BY first_name ASC, last_name ASC");
         $stmt->bind_param("issss", $userId, $search, $search, $search, $search);
         $stmt->execute();
 
