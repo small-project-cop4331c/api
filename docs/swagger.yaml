@@ -68,7 +68,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RegisterResponse"
+                $ref: "#/components/schemas/MessageResponse"
         "400":
           description: "Missing fields, invalid email, invalid password, or passwords\
             \ do not match."
@@ -118,13 +118,188 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ContactsErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Failed to retrieve contacts.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ContactsErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - developers
+      summary: Add contact
+      description: Creates a new contact for the authenticated user.
+      operationId: addContact
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactRequest"
+        required: true
+      responses:
+        "201":
+          description: Contact added successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: First name or last name is missing.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Missing or invalid JWT token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Failed to add contact.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      security:
+      - bearerAuth: []
+  /api/contacts/{id}:
+    get:
+      tags:
+      - developers
+      summary: Get contact
+      description: Retrieves a single contact by ID for the authenticated user.
+      operationId: getContact
+      parameters:
+      - name: id
+        in: path
+        description: ID of the contact to retrieve.
+        required: true
+        schema:
+          type: integer
+        example: 1
+      responses:
+        "200":
+          description: Contact retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactResponse"
+        "401":
+          description: Missing or invalid JWT token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Contact not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Failed to retrieve contact.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - developers
+      summary: Update contact
+      description: Updates a contact by ID for the authenticated user.
+      operationId: updateContactById
+      parameters:
+      - name: id
+        in: path
+        description: ID of the contact to update.
+        required: true
+        schema:
+          type: integer
+        example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactRequest"
+        required: true
+      responses:
+        "200":
+          description: Contact updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: First name or last name is missing.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Missing or invalid JWT token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Contact not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Failed to update contact.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - developers
+      summary: Delete contact
+      description: Deletes a contact by ID for the authenticated user.
+      operationId: deleteContactById
+      parameters:
+      - name: id
+        in: path
+        description: ID of the contact to delete.
+        required: true
+        schema:
+          type: integer
+        example: 1
+      responses:
+        "200":
+          description: Contact deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          description: Missing or invalid JWT token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Contact not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Failed to delete contact.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
       security:
       - bearerAuth: []
 components:
@@ -201,14 +376,14 @@ components:
             Include it in future requests using the Authorization header as a bearer
             token.
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
-    RegisterResponse:
+    MessageResponse:
       required:
       - message
       type: object
       properties:
         message:
           type: string
-          example: User registered successfully.
+          example: Operation completed successfully.
     ErrorResponse:
       required:
       - error
@@ -257,14 +432,36 @@ components:
           last_name: Smith
           phone_number: 4071234567
           email_address: john@example.com
-    ContactsErrorResponse:
+    ContactRequest:
       required:
-      - error
+      - first_name
+      - last_name
       type: object
       properties:
-        error:
+        first_name:
           type: string
-          example: The user's contacts could not be retrieved.
+          example: John
+        last_name:
+          type: string
+          example: Smith
+        phone_number:
+          type: string
+          example: "4071234567"
+        email_address:
+          type: string
+          format: email
+          example: john@example.com
+    ContactResponse:
+      required:
+      - contact
+      - message
+      type: object
+      properties:
+        message:
+          type: string
+          example: Contact retrieved successfully.
+        contact:
+          $ref: "#/components/schemas/Contact"
   securitySchemes:
     bearerAuth:
       type: http
