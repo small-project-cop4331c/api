@@ -122,13 +122,85 @@ class ContactsController {
     }
 
     public function updateContactById(Request $request, Response $response, array $args): Response {
-        // Implementation for updating a contact by ID
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        // Updates a specific contact by ID for the authenticated user
+        try {
+            // Gets user ID from the request attributes and the contact ID from the route arguments
+            $userId = $request->getAttribute("userId");
+            $id = (int) $args['id'];
+
+            // Parses the request body to extract updated contact fields
+            $body = $request->getParsedBody();
+
+            $firstName    = trim($body['first_name'] ?? '');
+            $lastName     = trim($body['last_name'] ?? '');
+            $phoneNumber  = trim($body['phone_number'] ?? '');
+            $emailAddress = trim($body['email_address'] ?? '');
+
+            // Returns a response with status code 400 if required fields are missing
+            if ($firstName === '' || $lastName === '') {
+                $response->getBody()->write(json_encode([
+                    'error' => 'First name and last name are required.'
+                ]));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            }
+
+            // Updates the contact in the database
+            $result = Contact::updateById($userId, $id, $firstName, $lastName, $phoneNumber, $emailAddress);
+
+            // Returns a response with status code 404 if no matching contact was found
+            if ($result['affectedRows'] === 0) {
+                $response->getBody()->write(json_encode([
+                    'error' => 'Contact not found.'
+                ]));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+            }
+
+            // Returns a successful response with status code 200 indicating the contact was updated
+            $response->getBody()->write(json_encode([
+                'message' => 'Contact updated successfully.'
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            // Returns a response with status code 500 if there was an error updating the contact in the database
+            $response->getBody()->write(json_encode([
+                'error' => 'The contact could not be updated.'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
     }
 
     public function deleteContactById(Request $request, Response $response, array $args): Response {
-        // Implementation for deleting a contact by ID
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        // Deletes a specific contact by ID for the authenticated user
+        try {
+            // Gets user ID from the request attributes and the contact ID from the route arguments
+            $userId = $request->getAttribute("userId");
+            $id = (int) $args['id'];
+
+            // Deletes the contact from the database
+            $result = Contact::deleteById($userId, $id);
+
+            // Returns a response with status code 404 if no matching contact was found
+            if ($result['affectedRows'] === 0) {
+                $response->getBody()->write(json_encode([
+                    'error' => 'Contact not found.'
+                ]));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+            }
+
+            // Returns a successful response with status code 200 indicating the contact was deleted
+            $response->getBody()->write(json_encode([
+                'message' => 'Contact deleted successfully.'
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            // Returns a response with status code 500 if there was an error deleting the contact from the database
+            $response->getBody()->write(json_encode([
+                'error' => 'The contact could not be deleted.'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
     }
 
 }
