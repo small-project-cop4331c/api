@@ -82,7 +82,6 @@ class Contact {
         
         // Executes the query and returns true if the contact was created successfully
         $success = $stmt->execute();
-        error_log("affected_rows: " . $stmt->affected_rows . " | error: " . $stmt->error);
         $stmt->close();
 
         return $success;
