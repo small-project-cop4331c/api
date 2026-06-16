@@ -6,12 +6,12 @@ info:
     email: tiago@ucf.edu
   license:
     name: Apache 2.0
-    url: https://www.apache.org/licenses/LICENSE-2.0.html
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
 servers:
 - url: https://virtserver.swaggerhub.com/na-6b2/SmallProject_API/1.0.0
   description: SwaggerHub API Auto Mocking
-- url: http://stealingyourinfo.xyz
+- url: https://stealingyourinfo.xyz
   description: DigitalOcean Droplet
 tags:
 - name: developers
